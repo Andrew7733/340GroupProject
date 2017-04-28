@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <time.h>
 
 //Forward declerations
@@ -32,9 +33,10 @@ int main(int argc, char **argv)
 void findCacheLineSize(int max_stride, int sizeOfBigArray, int repetitions){
 	//Beginning of method to determine cache block(line size)
 	long start, end;
-	int lengthMod, arraySize=(((max_stride/sizeof(int))/4)-1);
-	float times[max_stride/sizeof(int)/4]; //Made an Array of floats for storing the times
-	int strides[max_stride/sizeof(int)/4]; //Made an Array of ints to record strides should match with times at the same index so we can do analytics later
+	int lengthMod; 
+	//int arraySize=(((max_stride/sizeof(int))/4)-1);
+	//float times[max_stride/sizeof(int)/4]; //Made an Array of floats for storing the times
+	//int strides[max_stride/sizeof(int)/4]; //Made an Array of ints to record strides should match with times at the same index so we can do analytics later
 	
 	//Here I create an array and fill it with random data (between 0 - 100)
 	int tooBigForCache[sizeOfBigArray];
@@ -53,10 +55,10 @@ void findCacheLineSize(int max_stride, int sizeOfBigArray, int repetitions){
 		end = timer();
 		float timeTaken = ((float)(end - start));
 		//store the timeTaken to an array to view later
-		strides[arraySize] = s;
-		times[arraySize] = timeTaken;
+		//strides[arraySize] = s;
+		//times[arraySize] = timeTaken;
 		
-		printf("Stride Size: %d, Recorded Time(ns): %1.2f \n", s * sizeof(int), timeTaken/CLOCKS_PER_SEC);
+		printf("Stride Size: %d, Recorded Time(ns): %1.2f \n", ((int)(s * sizeof(int))), timeTaken/CLOCKS_PER_SEC);
 	}
 }
 
