@@ -6,18 +6,21 @@
 long timer();
 void sort(float *arr, int size);
 void findCacheLineSize(int max_stride, int sizeOfBigArray, int repetitions);
+void findCacheTime(int sizeOfBigArray, int repetitions);
+void findUncachedTime(int sizeOfBigArray, int repetitions);
+float average(float *arr, int size);
 
 
-int main(int argc, char **argv)
-{
+int main(int argc, char **argv){
 	//set up for find cache line size
 	int max_stride = 128;
-	int sizeOfArray = (16384 / sizeof(int)); //size of the big array (needs to be > 8MB bc that's the size of my cache) I made it 16MB
-	int numOfIterations = 100000;
+	int sizeOfArray = (16384); //size of the big array (needs to be > 8MB bc that's the size of my cache) I made it 16MB
+	int numOfIterations = 10000;
 	
 	
-		findCacheLineSize(max_stride, sizeOfArray, numOfIterations);
-	
+	findCacheLineSize(max_stride, sizeOfArray, numOfIterations);
+	findCacheTime(sizeOfArray, numOfIterations);
+	findUncachedTime(sizeOfArray, numOfIterations);
 	/*
 	Testing the sort method
 	printf("Sorting helper test \n");
@@ -26,7 +29,10 @@ int main(int argc, char **argv)
 	for (int i=0; i<10; i++){
 		printf("%d", test[i]);
 	}
+	float test[10] = {5.1, 7.4, 2.7, 4.4, 8.3, 1.0, 2.0, 0.0, 7.3, 5.6};
+	average(&test, 10);
 	*/
+	
 }
 
 //Find Cache Block (line) size
@@ -62,6 +68,52 @@ void findCacheLineSize(int max_stride, int sizeOfBigArray, int repetitions){
 	}
 }
 
+void findCacheTime(int sizeOfBigArray, int repetitions){
+	long start, end;
+	//initialize a random array
+	int tooBigForCache[sizeOfBigArray];
+	float times[repetitions];
+	srand(0);
+	for (int i = 0; i < sizeOfBigArray; i++){
+		tooBigForCache[i] = rand();
+	}
+	//Read one value to place in cache
+	int temp = tooBigForCache[0];
+	//make a trivial loop to prefetch and count average time per access.
+	
+	for (int i=0; i<repetitions; i++){
+		start = timer();
+		temp += tooBigForCache[i];
+		end = timer();
+		float timeTaken = ((float)(end - start));
+		times[i] = timeTaken;
+	}
+	float averageTime = average(times, repetitions);
+	printf ("The average time to access values that are already cached is: %f (ns)", averageTime/100);
+}
+
+void findUncachedTime(int sizeOfBigArray, int repetitions){
+	long start, end;
+	//initialize a random array
+	int tooBigForCache[sizeOfBigArray];
+	float times[repetitions];
+	srand(0);
+	for (int i = 0; i < sizeOfBigArray; i++){
+		tooBigForCache[i] = rand();
+	}
+	float temp;
+	//make a nontrivial loop to avoid prefetch and count average time per access.
+	
+	for (int i=0; i<repetitions; i+=120){
+		start = timer();
+		temp += tooBigForCache[i];
+		end = timer();
+		float timeTaken = ((float)(end - start));
+		times[i] = timeTaken;
+	}
+	float averageTime = average(times, repetitions);
+	printf ("The average time to access values that are not cached is: %f (ns)", averageTime/5);
+}
 
 //Helper methods
 long timer(){
@@ -70,7 +122,7 @@ long timer(){
 	return tp.tv_nsec;
 }
 
-void sort(float *arr, int size) {
+void sort(float *arr, int size){
 	//just a quick bubble sort for sorting the array of times.
 	float value = 0.0f;
 	for(int i=0;i<size-1;i++){
@@ -82,5 +134,13 @@ void sort(float *arr, int size) {
 			}
 		}
 	}
+}
+
+float average(float *arr, int size){
+	float sum=0.0;
+	for (int i=0; i<size; i++){
+		sum = sum + arr[i];
+	}
+	return (sum/size);
 }
 
