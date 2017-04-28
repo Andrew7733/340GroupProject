@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include <time.h>
 
+//Andrew Miller, Phillip Wilson
+
 //Forward declerations
 long timer();
 void sort(float *arr, int size);
