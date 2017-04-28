@@ -1,3 +1,5 @@
+Andrew Miller, Phillip Wilson
+
 1. How big is a cache block?
 After running  hundreds of test it looks like there was a steep drop off in performance most often at a stride of 80 and we are incrementing our stride in steps of 4 so we concluded that our cache has a line size of 76 Bytes.
 2. How big is the cache?
